@@ -41,6 +41,9 @@ export default class TwitterDownloader {
         btn.onclick = () => this.btnAct(videoEl);
         on.prepend(btn);
     }
+    // TODO: Fetch bearer token from https://ma-0.twimg.com/twitter-assets/responsive-web/web/ltr/main.5b6bf12947d7a3a6.js using jsonp
+    // GET "https://api.twitter.com/2/timeline/conversation/1588262810839969793.json"
+    // Example response at https://privatebin.net/?8b894069e25a4b7a#5Ypa3nu1554tAUghg9mX1seNJt7JEqGtS4MSG7ND6XpA
 
     btnAct(videoEl: HTMLElement) {
         /*let fiber = this.getReactFiber(videoEl);
