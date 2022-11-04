@@ -1,0 +1,40 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "commonjs",
+        "rootDir": "./src/",
+        "outDir": "./dist/",
+        "strict": true,
+        "moduleResolution": "node",
+        "importHelpers": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "forceConsistentCasingInFileNames": true,
+        "removeComments": true,
+        "strictPropertyInitialization": false,
+        "typeRoots": [
+            "node_modules/@types",
+            "src/typings",
+        ],
+        "sourceMap": false,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"],
+            "@style/*": ["./style/*"],
+        }
+    },
+    "files": [
+        "src/main.ts"
+    ],
+    "include": [
+        "./**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ],
+}

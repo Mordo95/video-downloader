@@ -1,0 +1,20 @@
+div.dlBtn{
+    position:absolute;
+    top:0;
+    right:0;
+    z-index:99999999;
+    padding:10px 15px;
+    margin:5px;
+    cursor:pointer;
+    outline:0;
+    background:#5383FB;
+    color:white;
+    border:1px solid 1px solid #5383FB;
+    font-family: Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif !important;
+    font-size:12px;
+
+    &:hover{
+        background-color:#86A4FC;
+    }
+}
+

@@ -1,0 +1,18 @@
+div.dlBtn{
+    position:absolute;
+    top:0;
+    right:0;
+    z-index:99999;
+    padding:10px 15px;
+    margin:5px;
+    cursor:pointer;
+    outline:0;
+    background:var(--primary-button-background);
+    color:var(--primary-button-text);
+    border:1px solid 1px solid var(--accent);
+    font-family: var(--font-family-segoe)!important;
+
+    &:hover{
+        background-color:var(--primary-button-pressed)
+    }
+}
