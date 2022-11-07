@@ -1,6 +1,7 @@
 import { staticImplements } from "@/decorators/StaticImplements";
 import Downloader from "@/Downloader";
 import { Params } from "@/helpers/Params";
+import { React } from "@/helpers/React";
 
 @staticImplements<Downloader>()
 export default class RedditDownloader {
@@ -16,28 +17,8 @@ export default class RedditDownloader {
         on.prepend(btn);
     }
 
-    returnUntil(inst: any, prop: any) {
-        let fInst = inst;
-        while (fInst != null) {
-            if (fInst.pendingProps[prop])
-                return fInst;
-
-            fInst = fInst.return;
-        }
-        return null;
-    }
-
-    getReactInternalState(el: HTMLElement) {
-        for (let prop of Object.keys(el)) {
-            if (prop.startsWith("__reactInternalInstance")) {
-                return (<Record<string,any>>el)[prop];
-            }
-        }
-        return null;
-    }
-
     btnAct(btn: HTMLElement) {
-        let src = this.returnUntil(this.getReactInternalState(btn.parentElement!), "mpegDashSource");
+        let src = React.returnUntil(React.getInternalState(btn.parentElement!)!, "mpegDashSource");
         if (!src) {
             alert("Unable to load video data");
             return;
