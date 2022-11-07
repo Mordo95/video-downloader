@@ -4,6 +4,7 @@ import Downloader from "@/Downloader";
 @staticImplements<Downloader>()
 export default class TwitterDownloader {
     static siteRegex: RegExp = /twitter\..*/;
+    readonly TWITTER_BEARER = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA";
 
     getReactFiber(el: HTMLElement) {
         for (let prop of Object.keys(el)) {
@@ -34,6 +35,28 @@ export default class TwitterDownloader {
         return null;
     }
 
+    async fetchGuestToken() {
+        const resp = await fetch("https://api.twitter.com/1.1/guest/activate.json", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${this.TWITTER_BEARER}`
+            }
+        })
+        const respJson = await resp.json();
+        return respJson.guest_token;
+    }
+
+    async queryApi(twId: string) {
+        const resp = await fetch(`https://api.twitter.com/2/timeline/conversation/${twId}.json`,{
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${this.TWITTER_BEARER}`,
+                "X-Guest-Token": await this.fetchGuestToken()
+            }
+        });
+        return await resp.json();
+    }
+
     addVideoButton(on: HTMLElement, videoEl: HTMLElement) {
         let btn = document.createElement("div");
         btn.innerHTML = "Download (HD)";
@@ -41,22 +64,20 @@ export default class TwitterDownloader {
         btn.onclick = () => this.btnAct(videoEl);
         on.prepend(btn);
     }
-    // TODO: Fetch bearer token from https://ma-0.twimg.com/twitter-assets/responsive-web/web/ltr/main.5b6bf12947d7a3a6.js using jsonp
-    // GET "https://api.twitter.com/2/timeline/conversation/1588262810839969793.json"
-    // Example response at https://privatebin.net/?8b894069e25a4b7a#5Ypa3nu1554tAUghg9mX1seNJt7JEqGtS4MSG7ND6XpA
 
-    btnAct(videoEl: HTMLElement) {
-        /*let fiber = this.getReactFiber(videoEl);
-        let props = this.fiberReturnUntil(fiber, "a [from CoreVideoPlayer.react]");
-        let impl = this.getVideoImplementation(props);
-        if (impl.data.hdSrc) {
-            window.open(impl.data.hdSrc);
-        } else {
-            window.open(impl.data.sdSrc);
-        }*/
+    async btnAct(videoEl: HTMLElement) {
         const fiber = this.getReactFiber(videoEl.parentElement!.parentElement!);
         const fiber2 = this.fiberReturnUntil(fiber, (x) => x.memoizedProps?.contentId);
-        console.log(fiber, fiber2);
+        const twId = fiber2.memoizedProps.videoId.id;
+        const data = await this.queryApi(twId);
+        const media = data.globalObjects.tweets[twId].extended_entities.media;
+        console.log(data.globalObjects.tweets[twId], media);
+        if (media.length === 0) { alert("Cannot fetch media data"); }
+        let variants = media[0].video_info.variants;
+        variants = variants.filter((x: any) => x.content_type !== "application/x-mpegURL").sort((a: any, b: any) => {
+           return a.bitrate > b.bitrate ? -1 : 1; 
+        });
+        window.open(variants[0].url);
     }
 
     inject() {
@@ -67,10 +88,6 @@ export default class TwitterDownloader {
             for (let video of videos) {
                 video.setAttribute("data-tagged", "true");
                 this.addVideoButton(video.parentElement!, (<HTMLElement>video));
-                //const article = 
-                /*let fiber = this.getReactFiber(video.parentElement!);
-                let props = this.fiberReturnUntil(fiber, "a [from CoreVideoPlayer.react]");
-                this.addVideoButton(document.querySelector(`[data-instancekey='${props.memoizedState.memoizedState}']`)!, video.parentElement!);*/
             }
         }, 200);
     }
