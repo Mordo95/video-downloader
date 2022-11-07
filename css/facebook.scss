@@ -15,4 +15,9 @@ div.dlBtn{
     &:hover{
         background-color:var(--primary-button-pressed)
     }
+
+    &.shorts {
+        right: 110px;
+        top: 5px;
+    }
 }

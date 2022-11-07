@@ -30,6 +30,16 @@ export default class FacebookDownloader {
         return null;
     }
 
+    fiberReturnUntilFn(fiber: any, predicate: (fiber: any) => boolean) {
+        let fiberInst = fiber;
+        while (fiberInst != null) {
+            if (predicate(fiberInst))
+                return fiberInst;
+            fiberInst = fiberInst.return;
+        }
+        return null;
+    }
+
     parentsUntil(el: HTMLElement, query: string) {
         let elInst = el;
         while (elInst != null) {
@@ -46,10 +56,11 @@ export default class FacebookDownloader {
         return fiber.memoizedProps.implementations.find((x: any) => x.typename === impl);
     }
 
-    addVideoButton(on: HTMLElement, videoEl: HTMLElement) {
+    addVideoButton(on: HTMLElement, videoEl: HTMLElement, isShorts = false) {
         let btn = document.createElement("div");
         btn.innerHTML = "Download (HD)";
         btn.classList.add("dlBtn");
+        if (isShorts) btn.classList.add("shorts");
         btn.onclick = () => this.btnAct(videoEl);
         on.prepend(btn);
     }
@@ -74,7 +85,17 @@ export default class FacebookDownloader {
                 video.setAttribute("data-tagged", "true");
                 let fiber = this.getReactFiber(video.parentElement!);
                 let props = this.fiberReturnUntil(fiber, "a [from CoreVideoPlayer.react]");
-                this.addVideoButton(document.querySelector(`[data-instancekey='${props.memoizedState.memoizedState}']`)!, video.parentElement!);
+                let appendTo: any = document.querySelector(`[data-instancekey='${props.memoizedState.memoizedState}']`)!;
+                let isShorts = false;
+                if (props.memoizedProps.subOrigin && props.memoizedProps.subOrigin === "fb_shorts_viewer") {
+                    let fiber2 = this.fiberReturnUntilFn(fiber, (fiber2) => { return fiber2.memoizedProps['data-video-id']});
+                    let el = fiber2.stateNode.parentElement.nextSibling;
+                    if (el.classList.contains("__fb-dark-mode"))
+                        el = el.nextSibling;
+                    appendTo = el;
+                    isShorts = true;
+                }
+                this.addVideoButton(appendTo, video.parentElement!, isShorts);
             }
         }, 200);
     }
